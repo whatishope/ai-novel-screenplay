@@ -1,11 +1,5 @@
-spring:
-  servlet:
-    multipart:
-      max-file-size: 5MB
-      max-request-size: 5MB
-
 llm:
-  api-key: ${LLM_API_KEY:}
+  api-key: ${LLM_API_KEY:your-api-key}
   base-url: ${LLM_BASE_URL:https://api.deepseek.com/v1}
   model: ${LLM_MODEL:deepseek-chat}
   timeout-seconds: ${LLM_TIMEOUT_SECONDS:60}
