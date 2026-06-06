@@ -1,0 +1,205 @@
+metadata:
+  title: 雨夜来客
+  source_title: 示例小说
+  language: zh-CN
+  genre: 悬疑
+  style: 短剧
+  chapter_count: 3
+  generated_at: "2026-06-06T18:30:00+08:00"
+  version: "1.0"
+
+characters:
+  - id: char_001
+    name: 林默
+    description: 年轻侦探，受托调查旧仓库失踪案。
+    personality: 冷静、敏锐、不轻易相信表象。
+    goal: 查明雨夜失踪案真相。
+    first_appeared_chapter: 1
+  - id: char_002
+    name: 许岚
+    description: 失踪者的妹妹，掌握一把旧仓库钥匙。
+    personality: 坚定、焦急、隐藏部分真相。
+    goal: 找到哥哥许川。
+    first_appeared_chapter: 1
+  - id: char_003
+    name: 周启
+    description: 旧仓库管理员，熟悉仓库内部通道。
+    personality: 谨慎、闪烁其词。
+    goal: 避免旧仓库的秘密被揭开。
+    first_appeared_chapter: 2
+
+relationships:
+  - from: char_001
+    to: char_002
+    type: 同伴
+    description: 林默接受许岚委托，两人共同调查失踪案。
+  - from: char_002
+    to: char_003
+    type: 怀疑
+    description: 许岚怀疑周启知道哥哥失踪前的去向。
+
+scenes:
+  - scene_id: scene_001
+    scene_number: 1
+    title: 雨夜委托
+    location: 林默事务所
+    time: 夜晚
+    characters:
+      - char_001
+      - char_002
+    summary: 暴雨中，许岚带着旧钥匙来到林默事务所，请他调查哥哥失踪案。
+    conflict: 许岚急于寻找哥哥，但她没有说出钥匙的真实来源。
+    actions:
+      - order: 1
+        content: 雨水敲打窗户，林默合上案卷，听见急促的敲门声。
+        source_trace:
+          chapter_index: 1
+          chapter_title: 第一章 雨夜
+          paragraph_range: "1-2"
+          note: 改编自主角在雨夜接到委托的情节。
+      - order: 2
+        content: 许岚把一把生锈的钥匙放在桌上，钥匙上刻着仓库编号。
+        source_trace:
+          chapter_index: 1
+          chapter_title: 第一章 雨夜
+          paragraph_range: "3-4"
+          note: 保留原文关键道具。
+    dialogues:
+      - order: 1
+        character: char_002
+        character_name: 许岚
+        content: 我哥哥三天前去了旧仓库，然后再也没有回来。
+        tone: 急切
+        source_trace:
+          chapter_index: 1
+          chapter_title: 第一章 雨夜
+          paragraph_range: "3-5"
+          note: 根据委托说明改写为对白。
+      - order: 2
+        character: char_001
+        character_name: 林默
+        content: 你没有报警，是因为这把钥匙不能被别人看见？
+        tone: 冷静
+        source_trace:
+          chapter_index: 1
+          chapter_title: 第一章 雨夜
+          paragraph_range: "5-6"
+          note: 根据主角推理补充对白。
+    source_trace:
+      chapter_index: 1
+      chapter_title: 第一章 雨夜
+      paragraph_range: "1-6"
+      note: 本场景覆盖委托开端。
+
+  - scene_id: scene_002
+    scene_number: 2
+    title: 旧仓库的管理员
+    location: 城西旧仓库
+    time: 深夜
+    characters:
+      - char_001
+      - char_002
+      - char_003
+    summary: 林默和许岚来到旧仓库，遇见管理员周启，发现仓库门锁近期被换过。
+    conflict: 周启否认见过许川，但他的说法与门锁痕迹矛盾。
+    actions:
+      - order: 1
+        content: 手电光扫过潮湿的铁门，门锁上有新鲜划痕。
+        source_trace:
+          chapter_index: 2
+          chapter_title: 第二章 仓库
+          paragraph_range: "1-3"
+          note: 改编自调查仓库入口的描写。
+      - order: 2
+        content: 周启从阴影里走出，挡在仓库门前。
+        source_trace:
+          chapter_index: 2
+          chapter_title: 第二章 仓库
+          paragraph_range: "4-5"
+          note: 保留管理员首次登场。
+    dialogues:
+      - order: 1
+        character: char_003
+        character_name: 周启
+        content: 这里早就废弃了，晚上不该有人来。
+        tone: 警惕
+        source_trace:
+          chapter_index: 2
+          chapter_title: 第二章 仓库
+          paragraph_range: "5-6"
+          note: 根据管理员阻拦情节改写。
+      - order: 2
+        character: char_001
+        character_name: 林默
+        content: 废弃仓库不会自己换新锁。周先生，你在怕什么？
+        tone: 试探
+        source_trace:
+          chapter_index: 2
+          chapter_title: 第二章 仓库
+          paragraph_range: "6-8"
+          note: 根据门锁线索生成推理对白。
+    source_trace:
+      chapter_index: 2
+      chapter_title: 第二章 仓库
+      paragraph_range: "1-8"
+      note: 本场景覆盖旧仓库调查。
+
+  - scene_id: scene_003
+    scene_number: 3
+    title: 暗门后的录音
+    location: 旧仓库地下室
+    time: 黎明前
+    characters:
+      - char_001
+      - char_002
+      - char_003
+    summary: 林默发现暗门和录音笔，证明许川失踪前曾留下线索。
+    conflict: 周启试图夺走录音笔，许岚必须决定是否说出钥匙来源。
+    actions:
+      - order: 1
+        content: 林默转动旧钥匙，货架后的暗门缓缓打开。
+        source_trace:
+          chapter_index: 3
+          chapter_title: 第三章 暗门
+          paragraph_range: "1-3"
+          note: 改编自发现暗门的关键情节。
+      - order: 2
+        content: 录音笔里传出许川断续的声音，周启的脸色瞬间变白。
+        source_trace:
+          chapter_index: 3
+          chapter_title: 第三章 暗门
+          paragraph_range: "4-6"
+          note: 保留证据揭示瞬间。
+    dialogues:
+      - order: 1
+        character: char_002
+        character_name: 许岚
+        content: 这把钥匙是哥哥失踪前寄给我的，他说只有我能相信你。
+        tone: 哽咽
+        source_trace:
+          chapter_index: 3
+          chapter_title: 第三章 暗门
+          paragraph_range: "3-5"
+          note: 将隐藏信息转为角色坦白。
+      - order: 2
+        character: char_001
+        character_name: 林默
+        content: 真相没有消失，只是被锁在了你们都不敢打开的门后。
+        tone: 克制
+        source_trace:
+          chapter_index: 3
+          chapter_title: 第三章 暗门
+          paragraph_range: "6-8"
+          note: 根据结尾揭示生成总结对白。
+    source_trace:
+      chapter_index: 3
+      chapter_title: 第三章 暗门
+      paragraph_range: "1-8"
+      note: 本场景覆盖证据发现和真相揭示。
+
+production:
+  estimated_duration: 5 分钟
+  target_format: 短剧
+  notes:
+    - 雨声、手电光和旧仓库空间是主要氛围元素。
+    - 场景 1 偏悬疑铺垫，场景 2 加强对峙，场景 3 完成线索揭示。
