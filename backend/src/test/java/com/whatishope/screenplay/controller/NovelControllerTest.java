@@ -9,6 +9,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.whatishope.screenplay.common.BadRequestException;
 import com.whatishope.screenplay.common.GlobalExceptionHandler;
 import com.whatishope.screenplay.dto.NovelUploadResponse;
+import com.whatishope.screenplay.service.ChapterSplitService;
 import com.whatishope.screenplay.service.NovelService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +29,9 @@ class NovelControllerTest {
 
     @MockBean
     private NovelService novelService;
+
+    @MockBean
+    private ChapterSplitService chapterSplitService;
 
     @Test
     void uploadReturnsNovelPreview() throws Exception {
