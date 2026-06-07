@@ -251,6 +251,28 @@ textarea {
   font-size: 13px;
 }
 
+.validation.valid ul {
+  color: #24623d;
+}
+
+.validation-group {
+  display: grid;
+  gap: 6px;
+}
+
+.validation-group b {
+  color: #763b0b;
+  font-size: 13px;
+}
+
+.validation-group.warning b {
+  color: #8a5a0a;
+}
+
+.validation-group.warning ul {
+  color: #8a5a0a;
+}
+
 @media (max-width: 1280px) {
   .workspace {
     grid-template-columns: 132px 1fr 1fr;
