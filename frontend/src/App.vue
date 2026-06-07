@@ -4,6 +4,7 @@ import { ElMessage } from 'element-plus'
 import {
   BookOpen,
   CheckCircle2,
+  Copy,
   Download,
   FileText,
   ListChecks,
@@ -196,6 +197,32 @@ function handleDownload() {
   URL.revokeObjectURL(url)
 }
 
+async function handleCopyYaml() {
+  if (!yamlText.value) {
+    ElMessage.warning('暂无可复制的 YAML')
+    return
+  }
+
+  try {
+    if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(yamlText.value)
+    } else {
+      const textarea = document.createElement('textarea')
+      textarea.value = yamlText.value
+      textarea.setAttribute('readonly', '')
+      textarea.style.position = 'fixed'
+      textarea.style.opacity = '0'
+      document.body.appendChild(textarea)
+      textarea.select()
+      document.execCommand('copy')
+      document.body.removeChild(textarea)
+    }
+    ElMessage.success('YAML 已复制')
+  } catch {
+    ElMessage.error('复制失败，请手动复制')
+  }
+}
+
 function loadSampleText() {
   title.value = '雨夜来客'
   novelText.value = `第一章 雨夜
@@ -367,6 +394,9 @@ function loadSampleText() {
               @click="handleValidateYaml"
             >
               校验
+            </el-button>
+            <el-button :icon="Copy" :disabled="!yamlText" @click="handleCopyYaml">
+              复制
             </el-button>
             <el-button :icon="Download" :disabled="!canExport" @click="handleDownload">
               导出
