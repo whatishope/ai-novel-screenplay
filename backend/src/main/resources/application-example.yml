@@ -8,3 +8,4 @@ llm:
   base-url: ${LLM_BASE_URL:https://api.deepseek.com/v1}
   model: ${LLM_MODEL:deepseek-chat}
   timeout-seconds: ${LLM_TIMEOUT_SECONDS:60}
+  json-response-enabled: ${LLM_JSON_RESPONSE_ENABLED:true}

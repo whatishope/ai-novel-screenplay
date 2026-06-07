@@ -9,6 +9,7 @@ import com.whatishope.screenplay.dto.CharacterDto;
 import com.whatishope.screenplay.dto.SceneDto;
 import com.whatishope.screenplay.dto.ScenePlanningResponse;
 import com.whatishope.screenplay.llm.LlmClient;
+import com.whatishope.screenplay.llm.LlmJsonResponseExtractor;
 import java.util.List;
 import java.util.stream.IntStream;
 import org.springframework.stereotype.Service;
@@ -32,8 +33,7 @@ public class ScenePlanningService {
         validate(chapters, characters);
 
         String prompt = buildPrompt(chapters, characters);
-        String llmResult = llmClient.generate(prompt);
-        List<SceneDto> scenes = normalizeSceneNumbers(parseScenes(llmResult));
+        List<SceneDto> scenes = normalizeSceneNumbers(generateScenes(prompt));
         if (scenes.isEmpty()) {
             scenes = mockScenes(chapters, characters);
         }
@@ -65,6 +65,7 @@ public class ScenePlanningService {
         builder.append("""
                 你是剧本改编助手。请根据小说章节和角色列表规划剧本场景。
                 只返回 JSON，不要返回 Markdown。
+                场景必须引用角色列表中的角色 id，sourceChapter 必须来自输入章节。
                 JSON 格式：
                 {
                   "scenes": [
@@ -108,6 +109,14 @@ public class ScenePlanningService {
         return builder.toString();
     }
 
+    private List<SceneDto> generateScenes(String prompt) {
+        try {
+            return parseScenes(llmClient.generate(prompt));
+        } catch (RuntimeException exception) {
+            return List.of();
+        }
+    }
+
     private String limitContent(String content) {
         String stripped = content.strip();
         if (stripped.length() <= MAX_CHAPTER_CONTENT_PREVIEW) {
@@ -122,7 +131,7 @@ public class ScenePlanningService {
         }
 
         try {
-            JsonNode root = objectMapper.readTree(llmResult);
+            JsonNode root = objectMapper.readTree(LlmJsonResponseExtractor.extractJsonObject(llmResult));
             JsonNode scenesNode = root.get("scenes");
             if (scenesNode == null || !scenesNode.isArray()) {
                 return List.of();

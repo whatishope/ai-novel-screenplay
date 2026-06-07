@@ -58,7 +58,31 @@ http://localhost:8080
 GET http://localhost:8080/api/health
 ```
 
-### 2. 启动前端
+### 2. 配置真实 LLM
+
+默认不配置 Key 时，后端会使用 mock 数据，保证演示流程可运行。
+
+如需调用真实 LLM，请在启动后端前设置环境变量：
+
+```bash
+set LLM_API_KEY=your-api-key
+set LLM_BASE_URL=https://api.deepseek.com/v1
+set LLM_MODEL=deepseek-chat
+set LLM_JSON_RESPONSE_ENABLED=true
+```
+
+PowerShell:
+
+```powershell
+$env:LLM_API_KEY="your-api-key"
+$env:LLM_BASE_URL="https://api.deepseek.com/v1"
+$env:LLM_MODEL="deepseek-chat"
+$env:LLM_JSON_RESPONSE_ENABLED="true"
+```
+
+后端使用 OpenAI-compatible `/chat/completions` 接口。当前默认配置适配 DeepSeek，也可通过 `LLM_BASE_URL` 和 `LLM_MODEL` 切换到兼容服务。如果兼容服务不支持 JSON response format，可以设置 `LLM_JSON_RESPONSE_ENABLED=false`。
+
+### 3. 启动前端
 
 ```bash
 cd frontend

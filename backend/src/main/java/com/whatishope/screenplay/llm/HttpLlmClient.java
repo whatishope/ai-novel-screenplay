@@ -29,14 +29,28 @@ public class HttpLlmClient implements LlmClient {
                 .build();
     }
 
+    HttpLlmClient(LlmProperties properties, RestClient restClient) {
+        this.properties = properties;
+        this.restClient = restClient;
+    }
+
     @Override
     public String generate(String prompt) {
         Map<String, Object> requestBody = new LinkedHashMap<>();
         requestBody.put("model", properties.getModel());
-        requestBody.put("messages", List.of(Map.of(
-                "role", "user",
-                "content", prompt == null ? "" : prompt
-        )));
+        requestBody.put("messages", List.of(
+                Map.of(
+                        "role", "system",
+                        "content", "You are a screenplay adaptation assistant. Return strict JSON only."
+                ),
+                Map.of(
+                        "role", "user",
+                        "content", prompt == null ? "" : prompt
+                )
+        ));
+        if (properties.isJsonResponseEnabled()) {
+            requestBody.put("response_format", Map.of("type", "json_object"));
+        }
         requestBody.put("temperature", 0.2);
 
         Map<?, ?> response = restClient.post()
