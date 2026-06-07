@@ -52,12 +52,13 @@ public class YamlValidationService {
                 List.copyOf(errors),
                 List.copyOf(warnings),
                 scenes == null ? 0 : scenes.size(),
-                characters == null ? 0 : characters.size()
+                characters == null ? 0 : characters.size(),
+                countRelationships(root)
         );
     }
 
     private ScreenplayYamlValidationResponse invalid(List<String> errors) {
-        return new ScreenplayYamlValidationResponse(false, errors, List.of(), 0, 0);
+        return new ScreenplayYamlValidationResponse(false, errors, List.of(), 0, 0, 0);
     }
 
     private void validateRoot(Map<?, ?> root, List<String> errors) {
@@ -259,6 +260,11 @@ public class YamlValidationService {
         if (root.containsKey(key) && !(root.get(key) instanceof Map<?, ?>)) {
             errors.add(key + " must be an object.");
         }
+    }
+
+    private int countRelationships(Map<?, ?> root) {
+        Object relationships = root.get("relationships");
+        return relationships instanceof List<?> list ? list.size() : 0;
     }
 
     private void collectWarnings(Map<?, ?> root, List<?> scenes, List<String> warnings) {
