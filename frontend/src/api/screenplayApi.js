@@ -55,6 +55,14 @@ export function generateYaml(title, chapters, characters, scenes) {
   })
 }
 
+export function generateFromText(title, text) {
+  return request('/api/screenplay/generate-from-text', {
+    method: 'POST',
+    headers: jsonHeaders,
+    body: JSON.stringify({ title, text })
+  })
+}
+
 export function validateYaml(yamlText) {
   return request('/api/screenplay/validate-yaml', {
     method: 'POST',

@@ -14,6 +14,7 @@ import {
 } from 'lucide-vue-next'
 import {
   extractCharacters,
+  generateFromText,
   generateYaml,
   planScenes,
   splitChapters,
@@ -37,6 +38,7 @@ const loading = reactive({
   characters: false,
   scenes: false,
   yaml: false,
+  all: false,
   validate: false
 })
 
@@ -129,6 +131,28 @@ async function handleGenerateYaml() {
     ElMessage.error(error.message)
   } finally {
     loading.yaml = false
+  }
+}
+
+async function handleGenerateAll() {
+  if (!novelText.value.trim()) {
+    ElMessage.warning('小说正文不能为空')
+    return
+  }
+
+  loading.all = true
+  try {
+    const result = await generateFromText(title.value, novelText.value)
+    chapters.value = result.chapters
+    characters.value = result.characters
+    scenes.value = result.scenes
+    yamlText.value = result.yamlText
+    validation.value = null
+    ElMessage.success('剧本已生成')
+  } catch (error) {
+    ElMessage.error(error.message)
+  } finally {
+    loading.all = false
   }
 }
 
@@ -227,14 +251,29 @@ function loadSampleText() {
           placeholder="粘贴小说正文"
         />
 
-        <el-button
-          type="primary"
-          :icon="BookOpen"
-          :loading="loading.split"
-          @click="handleSplit"
-        >
-          拆分章节
-        </el-button>
+        <div class="summary-strip">
+          <span>{{ chapters.length }} 章节</span>
+          <span>{{ characters.length }} 角色</span>
+          <span>{{ scenes.length }} 场景</span>
+        </div>
+
+        <div class="action-row">
+          <el-button
+            type="primary"
+            :icon="Sparkles"
+            :loading="loading.all"
+            @click="handleGenerateAll"
+          >
+            一键生成
+          </el-button>
+          <el-button
+            :icon="BookOpen"
+            :loading="loading.split"
+            @click="handleSplit"
+          >
+            拆分章节
+          </el-button>
+        </div>
       </section>
 
       <section class="panel outline-panel">
