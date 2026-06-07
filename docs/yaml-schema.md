@@ -149,6 +149,12 @@ relationships:
 | `paragraph_range` | string | 否 | 来源段落范围，例如 `1-4`。 |
 | `note` | string | 否 | 追溯说明。 |
 
+校验规则：
+
+- `chapter_index` 必须大于等于 `1`。
+- `chapter_index` 不能大于 `metadata.chapter_count`。
+- 场景、动作和对白中的 `source_trace` 都适用相同章节范围规则。
+
 示例：
 
 ```yaml
