@@ -10,10 +10,12 @@ import com.whatishope.screenplay.dto.CharacterDto;
 import com.whatishope.screenplay.dto.CharacterExtractionResponse;
 import com.whatishope.screenplay.dto.SceneDto;
 import com.whatishope.screenplay.dto.ScenePlanningResponse;
+import com.whatishope.screenplay.dto.ScreenplayFullGenerationResponse;
 import com.whatishope.screenplay.dto.ScreenplayYamlGenerationResponse;
 import com.whatishope.screenplay.dto.ScreenplayYamlValidationResponse;
 import com.whatishope.screenplay.service.CharacterExtractionService;
 import com.whatishope.screenplay.service.ScenePlanningService;
+import com.whatishope.screenplay.service.ScreenplayGenerationWorkflowService;
 import com.whatishope.screenplay.service.YamlGenerationService;
 import com.whatishope.screenplay.service.YamlValidationService;
 import java.util.List;
@@ -43,6 +45,9 @@ class ScreenplayControllerTest {
 
     @MockBean
     private YamlValidationService yamlValidationService;
+
+    @MockBean
+    private ScreenplayGenerationWorkflowService screenplayGenerationWorkflowService;
 
     @Test
     void extractCharactersReturnsCharacterList() throws Exception {
@@ -122,5 +127,30 @@ class ScreenplayControllerTest {
                 .andExpect(jsonPath("$.data.errors[0]").value("characters is required."))
                 .andExpect(jsonPath("$.data.sceneCount").value(0))
                 .andExpect(jsonPath("$.data.characterCount").value(0));
+    }
+
+    @Test
+    void generateFromTextReturnsFullWorkflowResult() throws Exception {
+        when(screenplayGenerationWorkflowService.generate("Demo", "Chapter 1\\nA visitor arrives."))
+                .thenReturn(new ScreenplayFullGenerationResponse(
+                        List.of(),
+                        List.of(),
+                        List.of(),
+                        "metadata:\n  title: Demo\n",
+                        1,
+                        2,
+                        3
+                ));
+
+        mockMvc.perform(post("/api/screenplay/generate-from-text")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"title\":\"Demo\",\"text\":\"Chapter 1\\\\nA visitor arrives.\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(0))
+                .andExpect(jsonPath("$.message").value("ok"))
+                .andExpect(jsonPath("$.data.yamlText").value("metadata:\n  title: Demo\n"))
+                .andExpect(jsonPath("$.data.chapterCount").value(1))
+                .andExpect(jsonPath("$.data.characterCount").value(2))
+                .andExpect(jsonPath("$.data.sceneCount").value(3));
     }
 }

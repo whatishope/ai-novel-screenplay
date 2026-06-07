@@ -5,12 +5,15 @@ import com.whatishope.screenplay.dto.CharacterExtractionRequest;
 import com.whatishope.screenplay.dto.CharacterExtractionResponse;
 import com.whatishope.screenplay.dto.ScenePlanningRequest;
 import com.whatishope.screenplay.dto.ScenePlanningResponse;
+import com.whatishope.screenplay.dto.ScreenplayFullGenerationRequest;
+import com.whatishope.screenplay.dto.ScreenplayFullGenerationResponse;
 import com.whatishope.screenplay.dto.ScreenplayYamlGenerationRequest;
 import com.whatishope.screenplay.dto.ScreenplayYamlGenerationResponse;
 import com.whatishope.screenplay.dto.ScreenplayYamlValidationRequest;
 import com.whatishope.screenplay.dto.ScreenplayYamlValidationResponse;
 import com.whatishope.screenplay.service.CharacterExtractionService;
 import com.whatishope.screenplay.service.ScenePlanningService;
+import com.whatishope.screenplay.service.ScreenplayGenerationWorkflowService;
 import com.whatishope.screenplay.service.YamlGenerationService;
 import com.whatishope.screenplay.service.YamlValidationService;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -26,17 +29,20 @@ public class ScreenplayController {
     private final ScenePlanningService scenePlanningService;
     private final YamlGenerationService yamlGenerationService;
     private final YamlValidationService yamlValidationService;
+    private final ScreenplayGenerationWorkflowService screenplayGenerationWorkflowService;
 
     public ScreenplayController(
             CharacterExtractionService characterExtractionService,
             ScenePlanningService scenePlanningService,
             YamlGenerationService yamlGenerationService,
-            YamlValidationService yamlValidationService
+            YamlValidationService yamlValidationService,
+            ScreenplayGenerationWorkflowService screenplayGenerationWorkflowService
     ) {
         this.characterExtractionService = characterExtractionService;
         this.scenePlanningService = scenePlanningService;
         this.yamlGenerationService = yamlGenerationService;
         this.yamlValidationService = yamlValidationService;
+        this.screenplayGenerationWorkflowService = screenplayGenerationWorkflowService;
     }
 
     @PostMapping("/extract-characters")
@@ -68,5 +74,12 @@ public class ScreenplayController {
             @RequestBody ScreenplayYamlValidationRequest request
     ) {
         return ApiResponse.ok(yamlValidationService.validate(request.yamlText()));
+    }
+
+    @PostMapping("/generate-from-text")
+    public ApiResponse<ScreenplayFullGenerationResponse> generateFromText(
+            @RequestBody ScreenplayFullGenerationRequest request
+    ) {
+        return ApiResponse.ok(screenplayGenerationWorkflowService.generate(request.title(), request.text()));
     }
 }
