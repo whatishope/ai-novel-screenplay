@@ -51,6 +51,7 @@ const activeStep = computed(() => {
 })
 
 const canExport = computed(() => validation.value?.valid === true)
+const validationWarnings = computed(() => validation.value?.warnings ?? [])
 
 watch(yamlText, () => {
   validation.value = null
@@ -166,9 +167,13 @@ async function handleValidateYaml() {
   loading.validate = true
   try {
     validation.value = await validateYaml(yamlText.value)
-    ElMessage[validation.value.valid ? 'success' : 'warning'](
-      validation.value.valid ? '校验通过' : '校验未通过'
-    )
+    if (!validation.value.valid) {
+      ElMessage.warning('校验未通过')
+    } else if (validationWarnings.value.length) {
+      ElMessage.warning('校验通过，有质量提示')
+    } else {
+      ElMessage.success('校验通过')
+    }
   } catch (error) {
     ElMessage.error(error.message)
   } finally {
@@ -385,8 +390,23 @@ function loadSampleText() {
         <div v-if="validation" class="validation" :class="{ valid: validation.valid }">
           <strong>{{ validation.valid ? '通过' : '未通过' }}</strong>
           <span>{{ validation.characterCount }} 角色 · {{ validation.sceneCount }} 场景</span>
-          <ul v-if="validation.errors.length">
-            <li v-for="error in validation.errors" :key="error">{{ error }}</li>
+
+          <div v-if="validation.errors.length" class="validation-group">
+            <b>错误</b>
+            <ul>
+              <li v-for="error in validation.errors" :key="error">{{ error }}</li>
+            </ul>
+          </div>
+
+          <div v-if="validationWarnings.length" class="validation-group warning">
+            <b>警告</b>
+            <ul>
+              <li v-for="warning in validationWarnings" :key="warning">{{ warning }}</li>
+            </ul>
+          </div>
+
+          <ul v-if="!validation.errors.length && !validationWarnings.length">
+            <li>结构完整，未发现错误或警告。</li>
           </ul>
         </div>
       </section>
