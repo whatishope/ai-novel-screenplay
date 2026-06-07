@@ -115,7 +115,13 @@ class ScreenplayControllerTest {
     @Test
     void validateYamlReturnsValidationResult() throws Exception {
         when(yamlValidationService.validate("metadata:\n  title: Demo\n"))
-                .thenReturn(new ScreenplayYamlValidationResponse(false, List.of("characters is required."), 0, 0));
+                .thenReturn(new ScreenplayYamlValidationResponse(
+                        false,
+                        List.of("characters is required."),
+                        List.of("production is missing; export will not include production notes."),
+                        0,
+                        0
+                ));
 
         mockMvc.perform(post("/api/screenplay/validate-yaml")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -125,6 +131,8 @@ class ScreenplayControllerTest {
                 .andExpect(jsonPath("$.message").value("ok"))
                 .andExpect(jsonPath("$.data.valid").value(false))
                 .andExpect(jsonPath("$.data.errors[0]").value("characters is required."))
+                .andExpect(jsonPath("$.data.warnings[0]")
+                        .value("production is missing; export will not include production notes."))
                 .andExpect(jsonPath("$.data.sceneCount").value(0))
                 .andExpect(jsonPath("$.data.characterCount").value(0));
     }
