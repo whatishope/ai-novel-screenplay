@@ -361,6 +361,10 @@ public class YamlValidationService {
         if (!StringUtils.hasText(from) || !StringUtils.hasText(to)) {
             return;
         }
+        if (from.equals(to)) {
+            errors.add(path + " must not reference the same character for from and to.");
+            return;
+        }
         String relationshipPair = from.compareTo(to) <= 0 ? from + "->" + to : to + "->" + from;
         if (!relationshipPairs.add(relationshipPair)) {
             errors.add(path + " duplicates relationship pair '" + relationshipPair + "'.");
