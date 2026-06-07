@@ -44,6 +44,12 @@ textarea {
   gap: 12px;
 }
 
+.top-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
 .brand svg {
   color: #2f6f73;
 }
