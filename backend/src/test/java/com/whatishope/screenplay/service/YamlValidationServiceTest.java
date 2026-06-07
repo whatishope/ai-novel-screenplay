@@ -220,6 +220,46 @@ class YamlValidationServiceTest {
     }
 
     @Test
+    void validateReportsDuplicateRelationshipPairs() {
+        String yaml = """
+                metadata:
+                  title: Demo
+                  language: zh-CN
+                  chapter_count: 1
+                  version: "1.0"
+                characters:
+                  - id: char_001
+                    name: Lin
+                  - id: char_002
+                    name: Xu
+                relationships:
+                  - from: char_001
+                    to: char_002
+                    type: 共现
+                  - from: char_002
+                    to: char_001
+                    type: 同伴
+                  - from: char_001
+                    to: char_002
+                    type: 调查搭档
+                scenes:
+                  - scene_id: scene_001
+                    scene_number: 1
+                    title: Opening
+                    summary: Lin and Xu enter the room.
+                """;
+
+        ScreenplayYamlValidationResponse response = service.validate(yaml);
+
+        assertThat(response.valid()).isFalse();
+        assertThat(response.errors()).contains(
+                "relationships[1] duplicates relationship pair 'char_001->char_002'.",
+                "relationships[2] duplicates relationship pair 'char_001->char_002'."
+        );
+        assertThat(response.relationshipCount()).isEqualTo(3);
+    }
+
+    @Test
     void validateReportsYamlSyntaxErrors() {
         ScreenplayYamlValidationResponse response = service.validate("metadata:\n  title: Demo\n  - broken");
 

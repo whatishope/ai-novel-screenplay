@@ -256,6 +256,7 @@ public class YamlValidationService {
             return;
         }
 
+        Set<String> relationshipPairs = new HashSet<>();
         for (int i = 0; i < relationships.size(); i++) {
             String path = "relationships[" + i + "]";
             Object item = relationships.get(i);
@@ -269,6 +270,7 @@ public class YamlValidationService {
             requireText(relationship, path + ".type", "type", errors);
             validateRelationshipReference(from, path + ".from", characterIds, errors);
             validateRelationshipReference(to, path + ".to", characterIds, errors);
+            validateRelationshipPair(from, to, path, relationshipPairs, errors);
         }
     }
 
@@ -346,6 +348,22 @@ public class YamlValidationService {
     ) {
         if (StringUtils.hasText(characterId) && !characterIds.contains(characterId)) {
             errors.add(path + " references unknown character '" + characterId + "'.");
+        }
+    }
+
+    private void validateRelationshipPair(
+            String from,
+            String to,
+            String path,
+            Set<String> relationshipPairs,
+            List<String> errors
+    ) {
+        if (!StringUtils.hasText(from) || !StringUtils.hasText(to)) {
+            return;
+        }
+        String relationshipPair = from.compareTo(to) <= 0 ? from + "->" + to : to + "->" + from;
+        if (!relationshipPairs.add(relationshipPair)) {
+            errors.add(path + " duplicates relationship pair '" + relationshipPair + "'.");
         }
     }
 
