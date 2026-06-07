@@ -7,9 +7,12 @@ import com.whatishope.screenplay.dto.ScenePlanningRequest;
 import com.whatishope.screenplay.dto.ScenePlanningResponse;
 import com.whatishope.screenplay.dto.ScreenplayYamlGenerationRequest;
 import com.whatishope.screenplay.dto.ScreenplayYamlGenerationResponse;
+import com.whatishope.screenplay.dto.ScreenplayYamlValidationRequest;
+import com.whatishope.screenplay.dto.ScreenplayYamlValidationResponse;
 import com.whatishope.screenplay.service.CharacterExtractionService;
 import com.whatishope.screenplay.service.ScenePlanningService;
 import com.whatishope.screenplay.service.YamlGenerationService;
+import com.whatishope.screenplay.service.YamlValidationService;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,15 +25,18 @@ public class ScreenplayController {
     private final CharacterExtractionService characterExtractionService;
     private final ScenePlanningService scenePlanningService;
     private final YamlGenerationService yamlGenerationService;
+    private final YamlValidationService yamlValidationService;
 
     public ScreenplayController(
             CharacterExtractionService characterExtractionService,
             ScenePlanningService scenePlanningService,
-            YamlGenerationService yamlGenerationService
+            YamlGenerationService yamlGenerationService,
+            YamlValidationService yamlValidationService
     ) {
         this.characterExtractionService = characterExtractionService;
         this.scenePlanningService = scenePlanningService;
         this.yamlGenerationService = yamlGenerationService;
+        this.yamlValidationService = yamlValidationService;
     }
 
     @PostMapping("/extract-characters")
@@ -55,5 +61,12 @@ public class ScreenplayController {
                 request.characters(),
                 request.scenes()
         ));
+    }
+
+    @PostMapping("/validate-yaml")
+    public ApiResponse<ScreenplayYamlValidationResponse> validateYaml(
+            @RequestBody ScreenplayYamlValidationRequest request
+    ) {
+        return ApiResponse.ok(yamlValidationService.validate(request.yamlText()));
     }
 }

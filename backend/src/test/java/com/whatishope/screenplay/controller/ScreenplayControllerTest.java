@@ -11,9 +11,11 @@ import com.whatishope.screenplay.dto.CharacterExtractionResponse;
 import com.whatishope.screenplay.dto.SceneDto;
 import com.whatishope.screenplay.dto.ScenePlanningResponse;
 import com.whatishope.screenplay.dto.ScreenplayYamlGenerationResponse;
+import com.whatishope.screenplay.dto.ScreenplayYamlValidationResponse;
 import com.whatishope.screenplay.service.CharacterExtractionService;
 import com.whatishope.screenplay.service.ScenePlanningService;
 import com.whatishope.screenplay.service.YamlGenerationService;
+import com.whatishope.screenplay.service.YamlValidationService;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,6 +40,9 @@ class ScreenplayControllerTest {
 
     @MockBean
     private YamlGenerationService yamlGenerationService;
+
+    @MockBean
+    private YamlValidationService yamlValidationService;
 
     @Test
     void extractCharactersReturnsCharacterList() throws Exception {
@@ -100,5 +105,22 @@ class ScreenplayControllerTest {
                 .andExpect(jsonPath("$.data.yamlText").value("metadata:\n  title: 雨夜来客\n"))
                 .andExpect(jsonPath("$.data.sceneCount").value(1))
                 .andExpect(jsonPath("$.data.characterCount").value(2));
+    }
+
+    @Test
+    void validateYamlReturnsValidationResult() throws Exception {
+        when(yamlValidationService.validate("metadata:\n  title: Demo\n"))
+                .thenReturn(new ScreenplayYamlValidationResponse(false, List.of("characters is required."), 0, 0));
+
+        mockMvc.perform(post("/api/screenplay/validate-yaml")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"yamlText\":\"metadata:\\n  title: Demo\\n\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(0))
+                .andExpect(jsonPath("$.message").value("ok"))
+                .andExpect(jsonPath("$.data.valid").value(false))
+                .andExpect(jsonPath("$.data.errors[0]").value("characters is required."))
+                .andExpect(jsonPath("$.data.sceneCount").value(0))
+                .andExpect(jsonPath("$.data.characterCount").value(0));
     }
 }
