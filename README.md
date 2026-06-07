@@ -103,6 +103,7 @@ npm.cmd run build
 ## 文档
 
 - [产品设计](docs/product-design.md)
+- [项目规划](docs/project-plan.md)
 - [YAML Schema](docs/yaml-schema.md)
 - [API Reference](docs/api-reference.md)
 - [Demo Guide](docs/demo-guide.md)
