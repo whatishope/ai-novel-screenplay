@@ -139,6 +139,49 @@ class YamlValidationServiceTest {
     }
 
     @Test
+    void validateReportsOutOfRangeSourceTraceChapterIndex() {
+        String yaml = """
+                metadata:
+                  title: Demo
+                  language: zh-CN
+                  chapter_count: 1
+                  version: "1.0"
+                characters:
+                  - id: char_001
+                    name: Lin
+                scenes:
+                  - scene_id: scene_001
+                    scene_number: 1
+                    title: Opening
+                    characters:
+                      - char_001
+                    summary: Lin enters the room.
+                    actions:
+                      - order: 1
+                        content: Lin checks the window.
+                        source_trace:
+                          chapter_index: 0
+                    dialogues:
+                      - order: 1
+                        character: char_001
+                        content: Who is there?
+                        source_trace:
+                          chapter_index: 2
+                    source_trace:
+                      chapter_index: 2
+                """;
+
+        ScreenplayYamlValidationResponse response = service.validate(yaml);
+
+        assertThat(response.valid()).isFalse();
+        assertThat(response.errors()).contains(
+                "scenes[0].actions[0].source_trace.chapter_index must be between 1 and metadata.chapter_count (1).",
+                "scenes[0].dialogues[0].source_trace.chapter_index must be between 1 and metadata.chapter_count (1).",
+                "scenes[0].source_trace.chapter_index must be between 1 and metadata.chapter_count (1)."
+        );
+    }
+
+    @Test
     void validateReportsInvalidRelationships() {
         String yaml = """
                 metadata:

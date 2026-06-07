@@ -35,13 +35,13 @@ public class YamlValidationService {
         List<String> warnings = new ArrayList<>();
         validateRoot(root, errors);
         Map<?, ?> metadata = requireMap(root, "metadata", errors);
-        validateMetadata(metadata, errors);
+        Integer chapterCount = validateMetadata(metadata, errors);
 
         List<?> characters = requireList(root, "characters", errors);
         Set<String> characterIds = validateCharacters(characters, errors);
 
         List<?> scenes = requireList(root, "scenes", errors);
-        validateScenes(scenes, characterIds, errors);
+        validateScenes(scenes, characterIds, chapterCount, errors);
 
         validateRelationships(root, characterIds, errors);
         validateOptionalMap(root, "production", errors);
@@ -67,14 +67,18 @@ public class YamlValidationService {
         requirePresent(root, "scenes", errors);
     }
 
-    private void validateMetadata(Map<?, ?> metadata, List<String> errors) {
+    private Integer validateMetadata(Map<?, ?> metadata, List<String> errors) {
         if (metadata == null) {
-            return;
+            return null;
         }
         requireText(metadata, "metadata.title", "title", errors);
         requireText(metadata, "metadata.language", "language", errors);
-        requireNumber(metadata, "metadata.chapter_count", "chapter_count", errors);
+        Number chapterCount = requireNumber(metadata, "metadata.chapter_count", "chapter_count", errors);
+        if (chapterCount != null && chapterCount.intValue() < 1) {
+            errors.add("metadata.chapter_count must be greater than 0.");
+        }
         requireText(metadata, "metadata.version", "version", errors);
+        return chapterCount == null || chapterCount.intValue() < 1 ? null : chapterCount.intValue();
     }
 
     private Set<String> validateCharacters(List<?> characters, List<String> errors) {
@@ -104,7 +108,12 @@ public class YamlValidationService {
         return characterIds;
     }
 
-    private void validateScenes(List<?> scenes, Set<String> characterIds, List<String> errors) {
+    private void validateScenes(
+            List<?> scenes,
+            Set<String> characterIds,
+            Integer chapterCount,
+            List<String> errors
+    ) {
         if (scenes == null) {
             return;
         }
@@ -133,9 +142,9 @@ public class YamlValidationService {
             requireText(scene, path + ".title", "title", errors);
             requireText(scene, path + ".summary", "summary", errors);
             validateCharacterReferences(scene, path, characterIds, errors);
-            validateActions(scene, path, errors);
-            validateDialogues(scene, path, characterIds, errors);
-            validateSourceTrace(scene, path + ".source_trace", errors);
+            validateActions(scene, path, chapterCount, errors);
+            validateDialogues(scene, path, characterIds, chapterCount, errors);
+            validateSourceTrace(scene, path + ".source_trace", chapterCount, errors);
         }
     }
 
@@ -165,7 +174,7 @@ public class YamlValidationService {
         }
     }
 
-    private void validateActions(Map<?, ?> scene, String path, List<String> errors) {
+    private void validateActions(Map<?, ?> scene, String path, Integer chapterCount, List<String> errors) {
         if (!scene.containsKey("actions")) {
             return;
         }
@@ -183,7 +192,7 @@ public class YamlValidationService {
             }
             requireNumber(action, actionPath + ".order", "order", errors);
             requireText(action, actionPath + ".content", "content", errors);
-            validateSourceTrace(action, actionPath + ".source_trace", errors);
+            validateSourceTrace(action, actionPath + ".source_trace", chapterCount, errors);
         }
     }
 
@@ -191,6 +200,7 @@ public class YamlValidationService {
             Map<?, ?> scene,
             String path,
             Set<String> characterIds,
+            Integer chapterCount,
             List<String> errors
     ) {
         if (!scene.containsKey("dialogues")) {
@@ -214,11 +224,11 @@ public class YamlValidationService {
                 errors.add(dialoguePath + ".character references unknown character '" + characterId + "'.");
             }
             requireText(dialogue, dialoguePath + ".content", "content", errors);
-            validateSourceTrace(dialogue, dialoguePath + ".source_trace", errors);
+            validateSourceTrace(dialogue, dialoguePath + ".source_trace", chapterCount, errors);
         }
     }
 
-    private void validateSourceTrace(Map<?, ?> owner, String path, List<String> errors) {
+    private void validateSourceTrace(Map<?, ?> owner, String path, Integer chapterCount, List<String> errors) {
         if (!owner.containsKey("source_trace")) {
             return;
         }
@@ -227,7 +237,13 @@ public class YamlValidationService {
             errors.add(path + " must be an object.");
             return;
         }
-        requireNumber(sourceTrace, path + ".chapter_index", "chapter_index", errors);
+        Number chapterIndex = requireNumber(sourceTrace, path + ".chapter_index", "chapter_index", errors);
+        if (chapterCount != null
+                && chapterIndex != null
+                && (chapterIndex.intValue() < 1 || chapterIndex.intValue() > chapterCount)) {
+            errors.add(path + ".chapter_index must be between 1 and metadata.chapter_count ("
+                    + chapterCount + ").");
+        }
     }
 
     private void validateRelationships(Map<?, ?> root, Set<String> characterIds, List<String> errors) {
