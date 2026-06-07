@@ -108,6 +108,35 @@ class YamlValidationServiceTest {
     }
 
     @Test
+    void validateReportsDuplicateSceneIds() {
+        String yaml = """
+                metadata:
+                  title: Demo
+                  language: zh-CN
+                  chapter_count: 1
+                  version: "1.0"
+                characters:
+                  - id: char_001
+                    name: Lin
+                scenes:
+                  - scene_id: scene_001
+                    scene_number: 1
+                    title: Opening
+                    summary: Lin enters the room.
+                  - scene_id: scene_001
+                    scene_number: 2
+                    title: Return
+                    summary: Lin returns to the room.
+                """;
+
+        ScreenplayYamlValidationResponse response = service.validate(yaml);
+
+        assertThat(response.valid()).isFalse();
+        assertThat(response.errors())
+                .contains("scenes[1].scene_id duplicates scene id 'scene_001'.");
+    }
+
+    @Test
     void validateReportsInvalidRelationships() {
         String yaml = """
                 metadata:

@@ -112,6 +112,7 @@ public class YamlValidationService {
             return;
         }
 
+        Set<String> sceneIds = new HashSet<>();
         for (int i = 0; i < scenes.size(); i++) {
             String path = "scenes[" + i + "]";
             Object item = scenes.get(i);
@@ -120,7 +121,10 @@ public class YamlValidationService {
                 continue;
             }
 
-            requireText(scene, path + ".scene_id", "scene_id", errors);
+            String sceneId = requireText(scene, path + ".scene_id", "scene_id", errors);
+            if (StringUtils.hasText(sceneId) && !sceneIds.add(sceneId)) {
+                errors.add(path + ".scene_id duplicates scene id '" + sceneId + "'.");
+            }
             Number sceneNumber = requireNumber(scene, path + ".scene_number", "scene_number", errors);
             if (sceneNumber != null && sceneNumber.intValue() != i + 1) {
                 errors.add(path + ".scene_number must be " + (i + 1) + ".");
