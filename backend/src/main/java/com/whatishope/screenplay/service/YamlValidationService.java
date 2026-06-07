@@ -32,6 +32,7 @@ public class YamlValidationService {
         }
 
         List<String> errors = new ArrayList<>();
+        List<String> warnings = new ArrayList<>();
         validateRoot(root, errors);
         Map<?, ?> metadata = requireMap(root, "metadata", errors);
         validateMetadata(metadata, errors);
@@ -44,17 +45,19 @@ public class YamlValidationService {
 
         validateOptionalList(root, "relationships", errors);
         validateOptionalMap(root, "production", errors);
+        collectWarnings(root, scenes, warnings);
 
         return new ScreenplayYamlValidationResponse(
                 errors.isEmpty(),
                 List.copyOf(errors),
+                List.copyOf(warnings),
                 scenes == null ? 0 : scenes.size(),
                 characters == null ? 0 : characters.size()
         );
     }
 
     private ScreenplayYamlValidationResponse invalid(List<String> errors) {
-        return new ScreenplayYamlValidationResponse(false, errors, 0, 0);
+        return new ScreenplayYamlValidationResponse(false, errors, List.of(), 0, 0);
     }
 
     private void validateRoot(Map<?, ?> root, List<String> errors) {
@@ -231,6 +234,61 @@ public class YamlValidationService {
     private void validateOptionalMap(Map<?, ?> root, String key, List<String> errors) {
         if (root.containsKey(key) && !(root.get(key) instanceof Map<?, ?>)) {
             errors.add(key + " must be an object.");
+        }
+    }
+
+    private void collectWarnings(Map<?, ?> root, List<?> scenes, List<String> warnings) {
+        collectRelationshipWarnings(root, warnings);
+        collectProductionWarnings(root, warnings);
+        collectSceneWarnings(scenes, warnings);
+    }
+
+    private void collectRelationshipWarnings(Map<?, ?> root, List<String> warnings) {
+        if (!root.containsKey("relationships")) {
+            warnings.add("relationships is missing; character relationship graph will be empty.");
+            return;
+        }
+        Object relationships = root.get("relationships");
+        if (relationships instanceof List<?> list && list.isEmpty()) {
+            warnings.add("relationships is empty; character relationship graph will be empty.");
+        }
+    }
+
+    private void collectProductionWarnings(Map<?, ?> root, List<String> warnings) {
+        if (!root.containsKey("production")) {
+            warnings.add("production is missing; export will not include production notes.");
+        }
+    }
+
+    private void collectSceneWarnings(List<?> scenes, List<String> warnings) {
+        if (scenes == null) {
+            return;
+        }
+        for (int i = 0; i < scenes.size(); i++) {
+            Object item = scenes.get(i);
+            if (!(item instanceof Map<?, ?> scene)) {
+                continue;
+            }
+            String path = "scenes[" + i + "]";
+            warnIfMissingTraceableBlock(scene, path, "source_trace", warnings);
+            warnIfMissingTraceableBlock(scene, path, "actions", warnings);
+            warnIfMissingTraceableBlock(scene, path, "dialogues", warnings);
+        }
+    }
+
+    private void warnIfMissingTraceableBlock(
+            Map<?, ?> scene,
+            String path,
+            String key,
+            List<String> warnings
+    ) {
+        if (!scene.containsKey(key)) {
+            warnings.add(path + "." + key + " is missing; generated screenplay may be less traceable.");
+            return;
+        }
+        Object value = scene.get(key);
+        if (value instanceof List<?> list && list.isEmpty()) {
+            warnings.add(path + "." + key + " is empty; generated screenplay may be less traceable.");
         }
     }
 

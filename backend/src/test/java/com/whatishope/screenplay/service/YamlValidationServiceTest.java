@@ -17,8 +17,40 @@ class YamlValidationServiceTest {
 
         assertThat(response.valid()).isTrue();
         assertThat(response.errors()).isEmpty();
+        assertThat(response.warnings()).contains("relationships is empty; character relationship graph will be empty.");
         assertThat(response.sceneCount()).isEqualTo(1);
         assertThat(response.characterCount()).isEqualTo(1);
+    }
+
+    @Test
+    void validateReturnsWarningsWithoutFailing() {
+        String yaml = """
+                metadata:
+                  title: Demo
+                  language: zh-CN
+                  chapter_count: 1
+                  version: "1.0"
+                characters:
+                  - id: char_001
+                    name: Lin
+                scenes:
+                  - scene_id: scene_001
+                    scene_number: 1
+                    title: Opening
+                    summary: Lin enters the room.
+                """;
+
+        ScreenplayYamlValidationResponse response = service.validate(yaml);
+
+        assertThat(response.valid()).isTrue();
+        assertThat(response.errors()).isEmpty();
+        assertThat(response.warnings()).contains(
+                "relationships is missing; character relationship graph will be empty.",
+                "production is missing; export will not include production notes.",
+                "scenes[0].source_trace is missing; generated screenplay may be less traceable.",
+                "scenes[0].actions is missing; generated screenplay may be less traceable.",
+                "scenes[0].dialogues is missing; generated screenplay may be less traceable."
+        );
     }
 
     @Test
@@ -81,6 +113,7 @@ class YamlValidationServiceTest {
 
         assertThat(response.valid()).isFalse();
         assertThat(response.errors()).hasSize(1);
+        assertThat(response.warnings()).isEmpty();
         assertThat(response.errors().get(0)).startsWith("YAML syntax error:");
     }
 
