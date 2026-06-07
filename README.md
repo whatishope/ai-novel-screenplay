@@ -105,6 +105,7 @@ npm.cmd run build
 - [产品设计](docs/product-design.md)
 - [YAML Schema](docs/yaml-schema.md)
 - [API Reference](docs/api-reference.md)
+- [Demo Guide](docs/demo-guide.md)
 - [示例 YAML](examples/sample-screenplay.yaml)
 
 ## MVP 范围
