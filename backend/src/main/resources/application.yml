@@ -4,6 +4,11 @@ spring:
       max-file-size: 5MB
       max-request-size: 5MB
 
+app:
+  cors:
+    allowed-origins:
+      - ${FRONTEND_ORIGIN:http://localhost:5173}
+
 llm:
   api-key: ${LLM_API_KEY:}
   base-url: ${LLM_BASE_URL:https://api.deepseek.com/v1}
