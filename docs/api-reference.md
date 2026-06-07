@@ -237,6 +237,7 @@ Notes:
 - `warnings` are quality or completeness hints and do not fail validation.
 - `relationshipCount` counts items in the top-level `relationships` array.
 - Relationship validation checks each `from`, `to`, and `type`, and verifies that `from` and `to` reference known character IDs.
+- `source_trace.chapter_index` must be between `1` and `metadata.chapter_count` for scenes, actions, and dialogues.
 
 ### `POST /api/screenplay/generate-from-text`
 
