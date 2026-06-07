@@ -130,6 +130,16 @@ class ScreenplayControllerTest {
     }
 
     @Test
+    void validateYamlRejectsBlankYamlText() throws Exception {
+        mockMvc.perform(post("/api/screenplay/validate-yaml")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"yamlText\":\"  \"}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value(400))
+                .andExpect(jsonPath("$.message").value("YAML text must not be empty."));
+    }
+
+    @Test
     void generateFromTextReturnsFullWorkflowResult() throws Exception {
         when(screenplayGenerationWorkflowService.generate("Demo", "Chapter 1\\nA visitor arrives."))
                 .thenReturn(new ScreenplayFullGenerationResponse(
@@ -152,5 +162,15 @@ class ScreenplayControllerTest {
                 .andExpect(jsonPath("$.data.chapterCount").value(1))
                 .andExpect(jsonPath("$.data.characterCount").value(2))
                 .andExpect(jsonPath("$.data.sceneCount").value(3));
+    }
+
+    @Test
+    void generateFromTextRejectsBlankNovelText() throws Exception {
+        mockMvc.perform(post("/api/screenplay/generate-from-text")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"title\":\"Demo\",\"text\":\"  \"}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value(400))
+                .andExpect(jsonPath("$.message").value("Novel text must not be blank."));
     }
 }

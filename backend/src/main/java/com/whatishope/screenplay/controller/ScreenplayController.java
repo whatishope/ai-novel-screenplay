@@ -16,6 +16,7 @@ import com.whatishope.screenplay.service.ScenePlanningService;
 import com.whatishope.screenplay.service.ScreenplayGenerationWorkflowService;
 import com.whatishope.screenplay.service.YamlGenerationService;
 import com.whatishope.screenplay.service.YamlValidationService;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -71,14 +72,14 @@ public class ScreenplayController {
 
     @PostMapping("/validate-yaml")
     public ApiResponse<ScreenplayYamlValidationResponse> validateYaml(
-            @RequestBody ScreenplayYamlValidationRequest request
+            @Valid @RequestBody ScreenplayYamlValidationRequest request
     ) {
         return ApiResponse.ok(yamlValidationService.validate(request.yamlText()));
     }
 
     @PostMapping("/generate-from-text")
     public ApiResponse<ScreenplayFullGenerationResponse> generateFromText(
-            @RequestBody ScreenplayFullGenerationRequest request
+            @Valid @RequestBody ScreenplayFullGenerationRequest request
     ) {
         return ApiResponse.ok(screenplayGenerationWorkflowService.generate(request.title(), request.text()));
     }
