@@ -260,6 +260,36 @@ class YamlValidationServiceTest {
     }
 
     @Test
+    void validateReportsSelfRelationships() {
+        String yaml = """
+                metadata:
+                  title: Demo
+                  language: zh-CN
+                  chapter_count: 1
+                  version: "1.0"
+                characters:
+                  - id: char_001
+                    name: Lin
+                relationships:
+                  - from: char_001
+                    to: char_001
+                    type: 自身
+                scenes:
+                  - scene_id: scene_001
+                    scene_number: 1
+                    title: Opening
+                    summary: Lin enters the room.
+                """;
+
+        ScreenplayYamlValidationResponse response = service.validate(yaml);
+
+        assertThat(response.valid()).isFalse();
+        assertThat(response.errors())
+                .contains("relationships[0] must not reference the same character for from and to.");
+        assertThat(response.relationshipCount()).isEqualTo(1);
+    }
+
+    @Test
     void validateReportsYamlSyntaxErrors() {
         ScreenplayYamlValidationResponse response = service.validate("metadata:\n  title: Demo\n  - broken");
 
