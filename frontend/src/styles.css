@@ -110,10 +110,26 @@ textarea {
 }
 
 .toolbar,
-.upload-row {
+.upload-row,
+.action-row,
+.summary-strip {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
+}
+
+.action-row {
+  justify-content: space-between;
+}
+
+.summary-strip {
+  justify-content: space-between;
+  padding: 10px 12px;
+  border: 1px solid #d8e0e4;
+  border-radius: 8px;
+  background: #f7faf9;
+  color: #40515a;
+  font-size: 13px;
 }
 
 .title-input {
