@@ -73,6 +73,14 @@ class NovelControllerTest {
     }
 
     @Test
+    void uploadReturnsBadRequestWhenFileIsMissing() throws Exception {
+        mockMvc.perform(multipart("/api/novel/upload"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value(400))
+                .andExpect(jsonPath("$.message").value("Required request parameter is missing."));
+    }
+
+    @Test
     void splitChaptersRejectsBlankText() throws Exception {
         mockMvc.perform(post("/api/novel/split-chapters")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -80,5 +88,15 @@ class NovelControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.code").value(400))
                 .andExpect(jsonPath("$.message").value("Novel text must not be blank."));
+    }
+
+    @Test
+    void splitChaptersRejectsMalformedJson() throws Exception {
+        mockMvc.perform(post("/api/novel/split-chapters")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"text\":"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value(400))
+                .andExpect(jsonPath("$.message").value("Request body is malformed."));
     }
 }
