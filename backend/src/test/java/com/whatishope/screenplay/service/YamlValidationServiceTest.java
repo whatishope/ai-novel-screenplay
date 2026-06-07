@@ -20,6 +20,7 @@ class YamlValidationServiceTest {
         assertThat(response.warnings()).contains("relationships is empty; character relationship graph will be empty.");
         assertThat(response.sceneCount()).isEqualTo(1);
         assertThat(response.characterCount()).isEqualTo(1);
+        assertThat(response.relationshipCount()).isZero();
     }
 
     @Test
@@ -51,6 +52,7 @@ class YamlValidationServiceTest {
                 "scenes[0].actions is missing; generated screenplay may be less traceable.",
                 "scenes[0].dialogues is missing; generated screenplay may be less traceable."
         );
+        assertThat(response.relationshipCount()).isZero();
     }
 
     @Test
@@ -171,6 +173,7 @@ class YamlValidationServiceTest {
                 "relationships[1].type is required and must be a non-empty string.",
                 "relationships[2] must be an object."
         );
+        assertThat(response.relationshipCount()).isEqualTo(3);
     }
 
     @Test

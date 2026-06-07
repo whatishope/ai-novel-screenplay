@@ -441,7 +441,11 @@ function loadSampleText() {
 
         <div v-if="validation" class="validation" :class="{ valid: validation.valid }">
           <strong>{{ validation.valid ? '通过' : '未通过' }}</strong>
-          <span>{{ validation.characterCount }} 角色 · {{ validation.sceneCount }} 场景</span>
+          <span>
+            {{ validation.characterCount }} 角色 ·
+            {{ validation.relationshipCount }} 关系 ·
+            {{ validation.sceneCount }} 场景
+          </span>
 
           <div v-if="validation.errors.length" class="validation-group">
             <b>错误</b>

@@ -7,6 +7,7 @@ public record ScreenplayYamlValidationResponse(
         List<String> errors,
         List<String> warnings,
         int sceneCount,
-        int characterCount
+        int characterCount,
+        int relationshipCount
 ) {
 }

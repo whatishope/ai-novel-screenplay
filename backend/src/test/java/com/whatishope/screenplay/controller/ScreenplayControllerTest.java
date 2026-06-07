@@ -120,6 +120,7 @@ class ScreenplayControllerTest {
                         List.of("characters is required."),
                         List.of("production is missing; export will not include production notes."),
                         0,
+                        0,
                         0
                 ));
 
@@ -134,7 +135,8 @@ class ScreenplayControllerTest {
                 .andExpect(jsonPath("$.data.warnings[0]")
                         .value("production is missing; export will not include production notes."))
                 .andExpect(jsonPath("$.data.sceneCount").value(0))
-                .andExpect(jsonPath("$.data.characterCount").value(0));
+                .andExpect(jsonPath("$.data.characterCount").value(0))
+                .andExpect(jsonPath("$.data.relationshipCount").value(0));
     }
 
     @Test
