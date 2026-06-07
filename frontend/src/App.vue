@@ -1,5 +1,5 @@
 <script setup>
-import { computed, reactive, ref } from 'vue'
+import { computed, reactive, ref, watch } from 'vue'
 import { ElMessage } from 'element-plus'
 import {
   BookOpen,
@@ -48,6 +48,12 @@ const activeStep = computed(() => {
   if (characters.value.length) return 2
   if (chapters.value.length) return 1
   return 0
+})
+
+const canExport = computed(() => validation.value?.valid === true)
+
+watch(yamlText, () => {
+  validation.value = null
 })
 
 function handleFileChange(file) {
@@ -171,6 +177,11 @@ async function handleValidateYaml() {
 }
 
 function handleDownload() {
+  if (!canExport.value) {
+    ElMessage.warning('请先通过 YAML 校验')
+    return
+  }
+
   const blob = new Blob([yamlText.value], { type: 'text/yaml;charset=utf-8' })
   const url = URL.createObjectURL(blob)
   const link = document.createElement('a')
@@ -352,7 +363,7 @@ function loadSampleText() {
             >
               校验
             </el-button>
-            <el-button :icon="Download" :disabled="!yamlText" @click="handleDownload">
+            <el-button :icon="Download" :disabled="!canExport" @click="handleDownload">
               导出
             </el-button>
           </div>
@@ -366,6 +377,10 @@ function loadSampleText() {
           spellcheck="false"
           placeholder="生成后的 YAML"
         />
+
+        <div class="export-status" :class="{ ready: canExport }">
+          {{ canExport ? '当前 YAML 已校验，可导出' : '校验通过后可导出 screenplay.yaml' }}
+        </div>
 
         <div v-if="validation" class="validation" :class="{ valid: validation.valid }">
           <strong>{{ validation.valid ? '通过' : '未通过' }}</strong>
