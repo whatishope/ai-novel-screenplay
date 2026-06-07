@@ -9,6 +9,7 @@ public class LlmProperties {
     private String baseUrl = "https://api.deepseek.com/v1";
     private String model = "deepseek-chat";
     private int timeoutSeconds = 60;
+    private boolean jsonResponseEnabled = true;
 
     public String getApiKey() {
         return apiKey;
@@ -40,5 +41,13 @@ public class LlmProperties {
 
     public void setTimeoutSeconds(int timeoutSeconds) {
         this.timeoutSeconds = timeoutSeconds;
+    }
+
+    public boolean isJsonResponseEnabled() {
+        return jsonResponseEnabled;
+    }
+
+    public void setJsonResponseEnabled(boolean jsonResponseEnabled) {
+        this.jsonResponseEnabled = jsonResponseEnabled;
     }
 }

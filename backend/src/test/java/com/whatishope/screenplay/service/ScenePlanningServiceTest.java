@@ -55,6 +55,50 @@ class ScenePlanningServiceTest {
     }
 
     @Test
+    void planParsesScenesFromFencedLlmJson() {
+        LlmClient llmClient = prompt -> """
+                ```json
+                {
+                  "scenes": [
+                    {
+                      "sceneId": "scene_001",
+                      "sceneNumber": 1,
+                      "title": "旧钥匙",
+                      "location": "事务所",
+                      "time": "夜晚",
+                      "characters": ["char_001", "char_002"],
+                      "summary": "许岚交出旧钥匙，林默决定调查。",
+                      "sourceChapter": 1
+                    }
+                  ]
+                }
+                ```
+                """;
+        ScenePlanningService service = new ScenePlanningService(llmClient, new ObjectMapper());
+
+        ScenePlanningResponse response = service.plan(sampleChapters(), sampleCharacters());
+
+        assertThat(response.scenes()).hasSize(1);
+        assertThat(response.scenes().get(0).title()).isEqualTo("旧钥匙");
+        assertThat(response.scenes().get(0).characters()).containsExactly("char_001", "char_002");
+    }
+
+    @Test
+    void planFallsBackToMockScenesWhenLlmThrows() {
+        ScenePlanningService service = new ScenePlanningService(
+                prompt -> {
+                    throw new IllegalStateException("LLM unavailable");
+                },
+                new ObjectMapper()
+        );
+
+        ScenePlanningResponse response = service.plan(sampleChapters(), sampleCharacters());
+
+        assertThat(response.scenes()).hasSize(2);
+        assertThat(response.scenes()).extracting("sceneId").containsExactly("scene_001", "scene_002");
+    }
+
+    @Test
     void planRejectsEmptyChapters() {
         ScenePlanningService service = new ScenePlanningService(prompt -> "{}", new ObjectMapper());
 

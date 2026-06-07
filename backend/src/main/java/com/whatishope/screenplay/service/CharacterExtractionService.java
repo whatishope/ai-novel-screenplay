@@ -8,6 +8,7 @@ import com.whatishope.screenplay.dto.ChapterDto;
 import com.whatishope.screenplay.dto.CharacterDto;
 import com.whatishope.screenplay.dto.CharacterExtractionResponse;
 import com.whatishope.screenplay.llm.LlmClient;
+import com.whatishope.screenplay.llm.LlmJsonResponseExtractor;
 import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -30,8 +31,7 @@ public class CharacterExtractionService {
         validateChapters(chapters);
 
         String prompt = buildPrompt(chapters);
-        String llmResult = llmClient.generate(prompt);
-        List<CharacterDto> characters = parseCharacters(llmResult);
+        List<CharacterDto> characters = generateCharacters(prompt);
         if (characters.isEmpty()) {
             characters = mockCharacters(chapters);
         }
@@ -55,6 +55,7 @@ public class CharacterExtractionService {
         builder.append("""
                 你是剧本改编助手。请根据小说章节提取主要角色。
                 只返回 JSON，不要返回 Markdown。
+                不要编造章节中完全没有出现的人物。
                 JSON 格式：
                 {
                   "characters": [
@@ -83,6 +84,14 @@ public class CharacterExtractionService {
         return builder.toString();
     }
 
+    private List<CharacterDto> generateCharacters(String prompt) {
+        try {
+            return parseCharacters(llmClient.generate(prompt));
+        } catch (RuntimeException exception) {
+            return List.of();
+        }
+    }
+
     private String limitContent(String content) {
         String stripped = content.strip();
         if (stripped.length() <= MAX_CHAPTER_CONTENT_PREVIEW) {
@@ -97,7 +106,7 @@ public class CharacterExtractionService {
         }
 
         try {
-            JsonNode root = objectMapper.readTree(llmResult);
+            JsonNode root = objectMapper.readTree(LlmJsonResponseExtractor.extractJsonObject(llmResult));
             JsonNode charactersNode = root.get("characters");
             if (charactersNode == null || !charactersNode.isArray()) {
                 return List.of();
