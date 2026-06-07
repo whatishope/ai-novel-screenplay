@@ -367,6 +367,8 @@ function loadSampleText() {
               <article v-for="scene in scenes" :key="scene.sceneId" class="item-card">
                 <strong>{{ scene.sceneNumber }}. {{ scene.title }}</strong>
                 <p>{{ scene.location }} · {{ scene.time }}</p>
+                <p>来源章节 {{ scene.sourceChapter }}</p>
+                <span v-if="scene.characters?.length">出场角色：{{ scene.characters.join('、') }}</span>
                 <span>{{ scene.summary }}</span>
               </article>
               <el-empty v-if="!scenes.length" :image-size="90" description="暂无场景" />
