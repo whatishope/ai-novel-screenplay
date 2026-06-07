@@ -6,9 +6,12 @@ import com.whatishope.screenplay.dto.CharacterDto;
 import com.whatishope.screenplay.dto.SceneDto;
 import com.whatishope.screenplay.dto.ScreenplayYamlGenerationResponse;
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -29,7 +32,7 @@ public class YamlGenerationService {
         Map<String, Object> screenplay = new LinkedHashMap<>();
         screenplay.put("metadata", buildMetadata(title, chapters));
         screenplay.put("characters", characters.stream().map(this::toCharacterMap).toList());
-        screenplay.put("relationships", List.of());
+        screenplay.put("relationships", buildRelationships(characters, scenes));
         screenplay.put("scenes", scenes.stream().map(scene -> toSceneMap(scene, characters)).toList());
         screenplay.put("production", buildProduction());
 
@@ -71,6 +74,54 @@ public class YamlGenerationService {
         characterMap.put("goal", character.goal());
         characterMap.put("first_appeared_chapter", character.firstAppearedChapter());
         return characterMap;
+    }
+
+    private List<Map<String, Object>> buildRelationships(List<CharacterDto> characters, List<SceneDto> scenes) {
+        Map<String, CharacterDto> characterById = new LinkedHashMap<>();
+        for (CharacterDto character : characters) {
+            characterById.put(character.id(), character);
+        }
+
+        List<Map<String, Object>> relationships = new ArrayList<>();
+        Set<String> relationshipKeys = new HashSet<>();
+        for (SceneDto scene : scenes) {
+            List<String> sceneCharacterIds = scene.characters() == null
+                    ? List.of()
+                    : scene.characters().stream()
+                            .filter(characterById::containsKey)
+                            .distinct()
+                            .toList();
+
+            for (int i = 0; i < sceneCharacterIds.size(); i++) {
+                for (int j = i + 1; j < sceneCharacterIds.size(); j++) {
+                    String from = sceneCharacterIds.get(i);
+                    String to = sceneCharacterIds.get(j);
+                    String relationshipKey = from.compareTo(to) < 0 ? from + "->" + to : to + "->" + from;
+                    if (relationshipKeys.add(relationshipKey)) {
+                        relationships.add(toRelationshipMap(from, to, scene, characterById));
+                    }
+                }
+            }
+        }
+        return relationships;
+    }
+
+    private Map<String, Object> toRelationshipMap(
+            String from,
+            String to,
+            SceneDto scene,
+            Map<String, CharacterDto> characterById
+    ) {
+        Map<String, Object> relationshipMap = new LinkedHashMap<>();
+        relationshipMap.put("from", from);
+        relationshipMap.put("to", to);
+        relationshipMap.put("type", "共现");
+        relationshipMap.put(
+                "description",
+                characterById.get(from).name() + " 与 " + characterById.get(to).name()
+                        + " 在《" + scene.title() + "》中共同出场。"
+        );
+        return relationshipMap;
     }
 
     private Map<String, Object> toSceneMap(SceneDto scene, List<CharacterDto> characters) {
