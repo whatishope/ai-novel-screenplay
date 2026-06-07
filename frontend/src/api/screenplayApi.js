@@ -2,12 +2,33 @@ const jsonHeaders = {
   'Content-Type': 'application/json'
 }
 
-async function request(path, options) {
-  const response = await fetch(path, options)
-  const payload = await response.json()
+async function parsePayload(response) {
+  const text = await response.text()
 
-  if (!response.ok || payload.code !== 0) {
-    throw new Error(payload.message || '请求失败')
+  if (!text) {
+    return null
+  }
+
+  try {
+    return JSON.parse(text)
+  } catch {
+    throw new Error(response.ok ? '响应格式错误' : `服务返回异常 (${response.status})`)
+  }
+}
+
+async function request(path, options) {
+  let response
+
+  try {
+    response = await fetch(path, options)
+  } catch {
+    throw new Error('后端服务不可用，请确认服务已启动')
+  }
+
+  const payload = await parsePayload(response)
+
+  if (!response.ok || payload?.code !== 0) {
+    throw new Error(payload?.message || `请求失败 (${response.status})`)
   }
 
   return payload.data
