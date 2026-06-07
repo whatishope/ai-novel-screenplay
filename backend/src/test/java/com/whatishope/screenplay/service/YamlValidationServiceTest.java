@@ -108,6 +108,43 @@ class YamlValidationServiceTest {
     }
 
     @Test
+    void validateReportsInvalidRelationships() {
+        String yaml = """
+                metadata:
+                  title: Demo
+                  language: zh-CN
+                  chapter_count: 1
+                  version: "1.0"
+                characters:
+                  - id: char_001
+                    name: Lin
+                relationships:
+                  - from: char_001
+                    to: char_999
+                    type: 同伴
+                  - from: ""
+                    to: char_001
+                    type: ""
+                  - broken
+                scenes:
+                  - scene_id: scene_001
+                    scene_number: 1
+                    title: Opening
+                    summary: Lin enters the room.
+                """;
+
+        ScreenplayYamlValidationResponse response = service.validate(yaml);
+
+        assertThat(response.valid()).isFalse();
+        assertThat(response.errors()).contains(
+                "relationships[0].to references unknown character 'char_999'.",
+                "relationships[1].from is required and must be a non-empty string.",
+                "relationships[1].type is required and must be a non-empty string.",
+                "relationships[2] must be an object."
+        );
+    }
+
+    @Test
     void validateReportsYamlSyntaxErrors() {
         ScreenplayYamlValidationResponse response = service.validate("metadata:\n  title: Demo\n  - broken");
 

@@ -43,7 +43,7 @@ public class YamlValidationService {
         List<?> scenes = requireList(root, "scenes", errors);
         validateScenes(scenes, characterIds, errors);
 
-        validateOptionalList(root, "relationships", errors);
+        validateRelationships(root, characterIds, errors);
         validateOptionalMap(root, "production", errors);
         collectWarnings(root, scenes, warnings);
 
@@ -225,9 +225,29 @@ public class YamlValidationService {
         requireNumber(sourceTrace, path + ".chapter_index", "chapter_index", errors);
     }
 
-    private void validateOptionalList(Map<?, ?> root, String key, List<String> errors) {
-        if (root.containsKey(key) && !(root.get(key) instanceof List<?>)) {
-            errors.add(key + " must be an array.");
+    private void validateRelationships(Map<?, ?> root, Set<String> characterIds, List<String> errors) {
+        if (!root.containsKey("relationships")) {
+            return;
+        }
+        Object value = root.get("relationships");
+        if (!(value instanceof List<?> relationships)) {
+            errors.add("relationships must be an array.");
+            return;
+        }
+
+        for (int i = 0; i < relationships.size(); i++) {
+            String path = "relationships[" + i + "]";
+            Object item = relationships.get(i);
+            if (!(item instanceof Map<?, ?> relationship)) {
+                errors.add(path + " must be an object.");
+                continue;
+            }
+
+            String from = requireText(relationship, path + ".from", "from", errors);
+            String to = requireText(relationship, path + ".to", "to", errors);
+            requireText(relationship, path + ".type", "type", errors);
+            validateRelationshipReference(from, path + ".from", characterIds, errors);
+            validateRelationshipReference(to, path + ".to", characterIds, errors);
         }
     }
 
@@ -289,6 +309,17 @@ public class YamlValidationService {
         Object value = scene.get(key);
         if (value instanceof List<?> list && list.isEmpty()) {
             warnings.add(path + "." + key + " is empty; generated screenplay may be less traceable.");
+        }
+    }
+
+    private void validateRelationshipReference(
+            String characterId,
+            String path,
+            Set<String> characterIds,
+            List<String> errors
+    ) {
+        if (StringUtils.hasText(characterId) && !characterIds.contains(characterId)) {
+            errors.add(path + " references unknown character '" + characterId + "'.");
         }
     }
 
