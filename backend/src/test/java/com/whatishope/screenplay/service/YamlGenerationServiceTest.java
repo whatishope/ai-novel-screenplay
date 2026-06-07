@@ -39,6 +39,14 @@ class YamlGenerationServiceTest {
         assertThat(parsed.containsKey("relationships")).isTrue();
         assertThat(parsed.containsKey("scenes")).isTrue();
         assertThat(parsed.containsKey("production")).isTrue();
+
+        List<?> relationships = (List<?>) parsed.get("relationships");
+        assertThat(relationships).hasSize(1);
+        Map<?, ?> relationship = (Map<?, ?>) relationships.get(0);
+        assertThat(relationship.get("from")).isEqualTo("char_001");
+        assertThat(relationship.get("to")).isEqualTo("char_002");
+        assertThat(relationship.get("type")).isEqualTo("共现");
+        assertThat((String) relationship.get("description")).contains("林默", "许岚", "雨夜委托");
     }
 
     @Test
