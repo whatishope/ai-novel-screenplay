@@ -12,6 +12,10 @@ AI Novel Screenplay 是一个 AI 小说转剧本 MVP 工具。它可以把小说
 - 校验 YAML 结构，返回错误、警告、角色数量、关系数量和场景数量。
 - 在前端工作台编辑、复制、校验并导出 `screenplay.yaml`。
 
+## 演示视频
+
+- [AI Novel Screenplay 功能演示](https://www.bilibili.com/video/BV1zEEh6KEXo/)
+
 ## 技术栈
 
 后端：
