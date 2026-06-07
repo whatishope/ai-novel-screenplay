@@ -221,6 +221,22 @@ textarea {
   background: #fff8e8;
 }
 
+.export-status {
+  min-height: 36px;
+  padding: 9px 12px;
+  border: 1px solid #d8e0e4;
+  border-radius: 8px;
+  background: #f7faf9;
+  color: #65727d;
+  font-size: 13px;
+}
+
+.export-status.ready {
+  border-color: #8ac7a1;
+  background: #eefaf3;
+  color: #24623d;
+}
+
 .validation.valid {
   border-color: #8ac7a1;
   background: #eefaf3;
