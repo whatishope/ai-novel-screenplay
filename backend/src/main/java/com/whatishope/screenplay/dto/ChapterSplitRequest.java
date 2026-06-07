@@ -1,4 +1,9 @@
 package com.whatishope.screenplay.dto;
 
-public record ChapterSplitRequest(String text) {
+import jakarta.validation.constraints.NotBlank;
+
+public record ChapterSplitRequest(
+        @NotBlank(message = "Novel text must not be blank.")
+        String text
+) {
 }

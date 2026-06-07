@@ -6,6 +6,7 @@ import com.whatishope.screenplay.dto.ChapterSplitResponse;
 import com.whatishope.screenplay.dto.NovelUploadResponse;
 import com.whatishope.screenplay.service.ChapterSplitService;
 import com.whatishope.screenplay.service.NovelService;
+import jakarta.validation.Valid;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -32,7 +33,7 @@ public class NovelController {
     }
 
     @PostMapping("/split-chapters")
-    public ApiResponse<ChapterSplitResponse> splitChapters(@RequestBody ChapterSplitRequest request) {
+    public ApiResponse<ChapterSplitResponse> splitChapters(@Valid @RequestBody ChapterSplitRequest request) {
         return ApiResponse.ok(chapterSplitService.split(request.text()));
     }
 }
