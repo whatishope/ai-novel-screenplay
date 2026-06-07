@@ -201,6 +201,11 @@ Response data:
 }
 ```
 
+Notes:
+
+- Generated YAML includes top-level `relationships`.
+- MVP relationship generation uses scene character co-occurrence as a basic relationship graph.
+
 ### `POST /api/screenplay/validate-yaml`
 
 Validates screenplay YAML structure.
@@ -221,7 +226,8 @@ Response data:
   "errors": ["characters is required."],
   "warnings": ["production is missing; export will not include production notes."],
   "sceneCount": 0,
-  "characterCount": 0
+  "characterCount": 0,
+  "relationshipCount": 0
 }
 ```
 
@@ -229,6 +235,8 @@ Notes:
 
 - `errors` determine whether `valid` is `true`.
 - `warnings` are quality or completeness hints and do not fail validation.
+- `relationshipCount` counts items in the top-level `relationships` array.
+- Relationship validation checks each `from`, `to`, and `type`, and verifies that `from` and `to` reference known character IDs.
 
 ### `POST /api/screenplay/generate-from-text`
 
