@@ -1,3 +1,8 @@
+app:
+  cors:
+    allowed-origins:
+      - ${FRONTEND_ORIGIN:http://localhost:5173}
+
 llm:
   api-key: ${LLM_API_KEY:your-api-key}
   base-url: ${LLM_BASE_URL:https://api.deepseek.com/v1}
