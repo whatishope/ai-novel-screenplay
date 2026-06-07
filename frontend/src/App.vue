@@ -8,6 +8,7 @@ import {
   Download,
   FileText,
   ListChecks,
+  RotateCcw,
   Sparkles,
   Upload,
   Users,
@@ -24,6 +25,7 @@ import {
 } from './api/screenplayApi'
 
 const title = ref('雨夜来客')
+const uploadRef = ref(null)
 const selectedFile = ref(null)
 const novelText = ref('')
 const uploadInfo = ref(null)
@@ -223,6 +225,20 @@ async function handleCopyYaml() {
   }
 }
 
+function handleResetWorkbench() {
+  title.value = '雨夜来客'
+  selectedFile.value = null
+  novelText.value = ''
+  uploadInfo.value = null
+  chapters.value = []
+  characters.value = []
+  scenes.value = []
+  yamlText.value = ''
+  validation.value = null
+  uploadRef.value?.clearFiles()
+  ElMessage.success('工作台已重置')
+}
+
 function loadSampleText() {
   title.value = '雨夜来客'
   novelText.value = `第一章 雨夜
@@ -245,7 +261,10 @@ function loadSampleText() {
           <span>小说转剧本工作台</span>
         </div>
       </div>
-      <el-tag type="success" effect="plain">MVP</el-tag>
+      <div class="top-actions">
+        <el-button :icon="RotateCcw" @click="handleResetWorkbench">重置</el-button>
+        <el-tag type="success" effect="plain">MVP</el-tag>
+      </div>
     </header>
 
     <main class="workspace">
@@ -269,6 +288,7 @@ function loadSampleText() {
 
         <div class="upload-row">
           <el-upload
+            ref="uploadRef"
             accept=".txt"
             :auto-upload="false"
             :limit="1"
