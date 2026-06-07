@@ -10,8 +10,10 @@ import com.whatishope.screenplay.dto.CharacterDto;
 import com.whatishope.screenplay.dto.CharacterExtractionResponse;
 import com.whatishope.screenplay.dto.SceneDto;
 import com.whatishope.screenplay.dto.ScenePlanningResponse;
+import com.whatishope.screenplay.dto.ScreenplayYamlGenerationResponse;
 import com.whatishope.screenplay.service.CharacterExtractionService;
 import com.whatishope.screenplay.service.ScenePlanningService;
+import com.whatishope.screenplay.service.YamlGenerationService;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +35,9 @@ class ScreenplayControllerTest {
 
     @MockBean
     private ScenePlanningService scenePlanningService;
+
+    @MockBean
+    private YamlGenerationService yamlGenerationService;
 
     @Test
     void extractCharactersReturnsCharacterList() throws Exception {
@@ -79,5 +84,21 @@ class ScreenplayControllerTest {
                 .andExpect(jsonPath("$.data.scenes[0].title").value("雨夜委托"))
                 .andExpect(jsonPath("$.data.scenes[0].characters[0]").value("char_001"))
                 .andExpect(jsonPath("$.data.scenes[0].sourceChapter").value(1));
+    }
+
+    @Test
+    void generateYamlReturnsYamlText() throws Exception {
+        when(yamlGenerationService.generate("雨夜来客", List.of(), List.of(), List.of()))
+                .thenReturn(new ScreenplayYamlGenerationResponse("metadata:\n  title: 雨夜来客\n", 1, 2));
+
+        mockMvc.perform(post("/api/screenplay/generate-yaml")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"title\":\"雨夜来客\",\"chapters\":[],\"characters\":[],\"scenes\":[]}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(0))
+                .andExpect(jsonPath("$.message").value("ok"))
+                .andExpect(jsonPath("$.data.yamlText").value("metadata:\n  title: 雨夜来客\n"))
+                .andExpect(jsonPath("$.data.sceneCount").value(1))
+                .andExpect(jsonPath("$.data.characterCount").value(2));
     }
 }
